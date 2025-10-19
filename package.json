@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
+    "build:dev": "vite build --mode development"
   },
   "dependencies": {
     "@clerk/clerk-js": "^5.101.0",
