@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Flame, Gift, Users, Star, Target } from 'lucide-react';
+import { Trophy, Flame, Users, Star, Target } from 'lucide-react';
 import StreakTracker from './StreakTracker';
 import PointsSystem from './PointsSystem';
 import ReferralSystem from './ReferralSystem';

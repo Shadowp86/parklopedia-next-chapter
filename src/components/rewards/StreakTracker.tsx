@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Flame, Calendar, Trophy } from 'lucide-react';
 import { api } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface UserStats {
@@ -39,7 +40,13 @@ const StreakTracker: React.FC = () => {
     if (!user?.id) return;
 
     try {
-      await api.rewards.updateUserStreak(user.id);
+      // Call the streak-updater edge function
+      const { error } = await supabase.functions.invoke('streak-updater', {
+        body: { user_id: user.id }
+      });
+
+      if (error) throw error;
+
       await loadUserStats(); // Refresh stats after update
     } catch (error) {
       console.error('Error updating streak:', error);

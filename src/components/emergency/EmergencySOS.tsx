@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, Phone, MapPin, MessageSquare, X, CheckCircle, Clock } from 'lucide-react';
-import { api } from '../../lib/api';
+import { AlertTriangle, Phone, MapPin, Clock } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface EmergencyContact {

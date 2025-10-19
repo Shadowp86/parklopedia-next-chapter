@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Users, Gift, Copy, Check, UserPlus } from 'lucide-react';
-import { api } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface ReferralStats {
@@ -109,7 +109,7 @@ const ReferralSystem: React.FC = () => {
 
     try {
       setApplying(true);
-      const { data, error } = await supabase.functions.invoke('referral-system', {
+      const { error } = await supabase.functions.invoke('referral-system', {
         body: {
           action: 'apply_referral',
           user_id: user.id,

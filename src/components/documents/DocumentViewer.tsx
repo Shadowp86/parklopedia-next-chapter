@@ -1,4 +1,4 @@
-import { X, Download, FileText } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
 import { Modal, Button } from '../ui';
 
 interface DocumentViewerProps {

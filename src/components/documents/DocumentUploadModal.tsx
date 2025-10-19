@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { X, Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, CheckCircle } from 'lucide-react';
 import { Modal, Button } from '../ui';
 import { useToast } from '../ui';
 import { useAuth } from '../../contexts/AuthContext';

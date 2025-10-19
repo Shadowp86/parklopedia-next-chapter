@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Star, Zap, Car, FileText, Calendar, Award } from 'lucide-react';
 import { api } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface PointsActivity {
@@ -28,7 +29,7 @@ const PointsSystem: React.FC = () => {
     if (!user?.id) return;
 
     try {
-      const data = await api.rewards.getUserRewards(user.id);
+      const data: any = await api.rewards.getUserRewards(user.id);
       setActivities(data.slice(0, 10)); // Get last 10 activities
     } catch (error) {
       console.error('Error loading activities:', error);
@@ -39,7 +40,18 @@ const PointsSystem: React.FC = () => {
     if (!user?.id) return;
 
     try {
-      await api.rewards.awardPoints(user.id, action, points, metadata);
+      // Since awardPoints doesn't exist in the API service, we'll use direct supabase call
+      const { error } = await supabase
+        .from('rewards')
+        .insert({
+          user_id: user.id,
+          points_awarded: points,
+          action_type: action,
+          metadata: metadata
+        });
+
+      if (error) throw error;
+
       setEarnedPoints(points);
       setShowPointsPopup(true);
 
