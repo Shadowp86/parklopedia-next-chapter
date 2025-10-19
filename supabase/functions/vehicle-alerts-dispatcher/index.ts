@@ -64,7 +64,10 @@ serve(async (req) => {
     const notifications = []
 
     for (const alert of alerts || []) {
-      const vehicle = alert.vehicles_catalog
+      const vehicleData: any = alert.vehicles_catalog
+      if (!vehicleData) continue
+      
+      const vehicle = Array.isArray(vehicleData) ? vehicleData[0] : vehicleData
       if (!vehicle) continue
 
       const variants = vehicle.vehicle_variants || []
@@ -74,7 +77,7 @@ serve(async (req) => {
       switch (alert.alert_type) {
         case 'price_drop':
           if (alert.threshold_value && variants.length > 0) {
-            const currentMinPrice = Math.min(...variants.map(v => v.price_range_min || 0))
+            const currentMinPrice = Math.min(...variants.map((v: any) => v.price_range_min || 0))
             if (currentMinPrice <= alert.threshold_value) {
               shouldTrigger = true
               triggerReason = `Price dropped to ₹${currentMinPrice.toLocaleString()} (below ₹${alert.threshold_value.toLocaleString()})`
@@ -85,8 +88,8 @@ serve(async (req) => {
         case 'new_variant':
           // Check if new variants were added since last trigger
           if (alert.last_triggered) {
-            const newVariants = variants.filter(v =>
-              new Date(v.created_at) > new Date(alert.last_triggered)
+            const newVariants = variants.filter((v: any) =>
+              v.created_at && new Date(v.created_at) > new Date(alert.last_triggered)
             )
             if (newVariants.length > 0) {
               shouldTrigger = true
@@ -165,7 +168,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in vehicle-alerts-dispatcher:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,

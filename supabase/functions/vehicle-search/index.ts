@@ -153,7 +153,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in vehicle-search:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
