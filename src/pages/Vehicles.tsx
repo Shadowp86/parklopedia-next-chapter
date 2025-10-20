@@ -39,7 +39,7 @@ const Vehicles = () => {
       if (!user?.id) return;
 
       const data = await api.vehicles.getVehicles(user.id);
-      setVehicles(data || []);
+      setVehicles((data as Vehicle[]) || []);
     } catch (error: any) {
       console.error('Error fetching vehicles:', error);
       showToast('error', error.message || 'Failed to fetch vehicles');

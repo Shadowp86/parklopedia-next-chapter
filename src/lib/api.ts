@@ -635,7 +635,7 @@ export class RewardsApiService extends ApiService {
     }
   }
 
-  async getLeaderboard(timeframe: 'weekly' | 'monthly' | 'all_time' = 'monthly') {
+  async getLeaderboard(_timeframe: 'weekly' | 'monthly' | 'all_time' = 'monthly') {
     try {
       const response = await supabase
         .from('user_stats')

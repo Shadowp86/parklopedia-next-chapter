@@ -61,7 +61,7 @@ const Parking = () => {
     try {
       setLoading(true);
       const spots = await api.parking.getParkingSpots();
-      setParkingSpots(spots);
+      setParkingSpots(spots as ParkingSpot[]);
     } catch (error) {
       console.error('Error fetching parking spots:', error);
       showToast('error', 'Failed to load parking spots');
@@ -147,7 +147,7 @@ const Parking = () => {
     }
   };
 
-  const handleBookSpot = async (spotId: string) => {
+  const handleBookSpot = async (_spotId: string) => {
     // TODO: Implement booking flow
     showToast('info', 'Booking feature coming soon!');
   };

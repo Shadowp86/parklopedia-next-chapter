@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Card, Loader } from '../components/ui';
-import { Plus, FileText, Search, Filter } from 'lucide-react';
+import { Plus, FileText, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/ui';
 import { api } from '../lib/api';
-import { useDocumentsRealtime } from '../hooks/useRealtime';
 import DocumentUploadModal from '../components/documents/DocumentUploadModal';
 import DocumentCard from '../components/documents/DocumentCard';
 import DocumentViewer from '../components/documents/DocumentViewer';
@@ -32,7 +31,6 @@ const Documents = () => {
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('');
   const [viewingDocument, setViewingDocument] = useState<Document | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -54,7 +52,7 @@ const Documents = () => {
     try {
       setLoading(true);
       const docs = await api.documents.getDocuments(user.id);
-      setDocuments(docs);
+      setDocuments(docs as Document[]);
     } catch (error) {
       console.error('Error fetching documents:', error);
       showToast('error', 'Failed to load documents');
@@ -312,7 +310,7 @@ const Documents = () => {
       <DocumentUploadModal
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
-        vehicleId={selectedVehicleId}
+        vehicleId=""
         onSuccess={handleUploadSuccess}
       />
 

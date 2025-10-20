@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, UserPlus, Car, Shield, Mail, Crown, Settings, Trash2 } from 'lucide-react';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
+import { Card, Button } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 

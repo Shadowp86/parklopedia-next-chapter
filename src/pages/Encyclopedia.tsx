@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Button, Loader } from '../components/ui';
-import { Search, Filter, Star, TrendingUp, Calendar, BookOpen, BarChart3, Zap } from 'lucide-react';
+import { Search, Filter, Star, TrendingUp, BookOpen, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
 
 interface Vehicle {
   id: string;
@@ -35,7 +33,6 @@ interface SearchFilters {
 }
 
 const Encyclopedia = () => {
-  const { user } = useAuth();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -218,7 +215,7 @@ const Encyclopedia = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader size="large" />
+        <Loader size="lg" />
       </div>
     );
   }
