@@ -1,5 +1,6 @@
 import { Bell, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
+import logo from '@/assets/logo.png';
 
 interface HeaderProps {
   userName?: string;
@@ -28,6 +29,7 @@ const Header = ({ userName = 'Guest', showMenu = false, onMenuClick }: HeaderPro
               <Menu size={24} className="text-gray-700 dark:text-gray-300" />
             </button>
           )}
+          <img src={logo} alt="Parklopedia" className="h-10 w-10" />
           <div>
             <h1 className="text-lg font-display font-semibold text-gray-900 dark:text-gray-100">
               {getGreeting()}, {userName}

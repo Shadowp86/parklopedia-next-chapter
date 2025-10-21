@@ -41,7 +41,13 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Parklopedia custom colors */
+    /* Parklopedia brand colors - based on tire/wheel logo */
+    --brand-dark: 220 13% 18%;
+    --brand-gray: 220 9% 46%;
+    --brand-light: 220 9% 85%;
+    --brand-accent: 221.2 83.2% 53.3%;
+    
+    /* Functional colors */
     --accent-blue: 221.2 83.2% 53.3%;
     --accent-blue-dark: 221.2 83.2% 43.3%;
     --accent-green: 142 71% 45%;

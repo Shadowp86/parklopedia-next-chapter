@@ -1,6 +1,6 @@
 import { SignUp as ClerkSignUp } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
-import { Car } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 const SignUp = () => {
   return (
@@ -14,16 +14,16 @@ const SignUp = () => {
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-            className="w-20 h-20 bg-white rounded-3xl mx-auto mb-4 flex items-center justify-center shadow-floating"
+            transition={{ type: "spring", duration: 0.8 }}
+            className="inline-block p-4 bg-white/10 rounded-2xl mb-6"
           >
-            <Car size={40} className="text-accent-blue" />
+            <img src={logo} alt="Parklopedia" className="h-16 w-16" />
           </motion.div>
-          <h1 className="text-3xl font-display font-bold text-white mb-2">
-            Create Account
+          <h1 className="text-4xl font-bold text-white mb-2">
+            Join Parklopedia
           </h1>
           <p className="text-blue-100">
-            Join Parklopedia to manage your vehicles
+            Your complete automotive companion
           </p>
         </div>
 
