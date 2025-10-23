@@ -870,6 +870,270 @@ export class FamilyApiService extends ApiService {
 }
 
 // ===========================================
+// ENCYCLOPEDIA API SERVICE
+// ===========================================
+
+export class EncyclopediaApiService extends ApiService {
+  async searchVehicles(query?: string, filters?: any, sortBy?: string, limit?: number, offset?: number) {
+    try {
+      const { data, error } = await supabase.functions.invoke('vehicle-search', {
+        body: {
+          query,
+          filters,
+          sort_by: sortBy,
+          limit,
+          offset
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async getVehicleById(vehicleId: string) {
+    try {
+      const response = await supabase
+        .from('vehicles_catalog')
+        .select(`
+          *,
+          vehicle_variants (*),
+          vehicle_reviews (
+            *,
+            users:user_id (
+              full_name,
+              avatar_url
+            )
+          )
+        `)
+        .eq('id', vehicleId)
+        .single();
+
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async compareVehicles(vehicleIds: string[], userId?: string) {
+    try {
+      const { data, error } = await supabase.functions.invoke('compare-vehicles', {
+        body: {
+          vehicle_ids: vehicleIds,
+          user_id: userId
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async getVehicleReviews(vehicleId: string, limit?: number, offset?: number) {
+    try {
+      let query = supabase
+        .from('vehicle_reviews')
+        .select(`
+          *,
+          users:user_id (
+            full_name,
+            avatar_url
+          )
+        `)
+        .eq('vehicle_id', vehicleId)
+        .order('created_at', { ascending: false });
+
+      if (limit) query = query.limit(limit);
+      if (offset) query = query.range(offset, offset + (limit || 10) - 1);
+
+      const response = await query;
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async submitReview(reviewData: any) {
+    try {
+      const response = await supabase
+        .from('vehicle_reviews')
+        .insert(reviewData)
+        .select()
+        .single();
+
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async getVehicleNews(limit?: number, offset?: number, category?: string) {
+    try {
+      let query = supabase
+        .from('vehicle_news')
+        .select('*')
+        .order('published_at', { ascending: false });
+
+      if (category) {
+        query = query.contains('categories', [category]);
+      }
+
+      if (limit) query = query.limit(limit);
+      if (offset) query = query.range(offset, offset + (limit || 10) - 1);
+
+      const response = await query;
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async getUserBookmarks(userId: string) {
+    try {
+      const response = await supabase
+        .from('vehicle_bookmarks')
+        .select(`
+          *,
+          vehicles_catalog (
+            id,
+            brand,
+            model,
+            category,
+            status
+          )
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async addBookmark(userId: string, vehicleId: string, notes?: string) {
+    try {
+      const response = await supabase
+        .from('vehicle_bookmarks')
+        .insert({
+          user_id: userId,
+          vehicle_id: vehicleId,
+          notes
+        })
+        .select()
+        .single();
+
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async removeBookmark(userId: string, vehicleId: string) {
+    try {
+      const response = await supabase
+        .from('vehicle_bookmarks')
+        .delete()
+        .eq('user_id', userId)
+        .eq('vehicle_id', vehicleId);
+
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async getUserAlerts(userId: string) {
+    try {
+      const response = await supabase
+        .from('vehicle_alerts')
+        .select(`
+          *,
+          vehicles_catalog (
+            brand,
+            model
+          )
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async createAlert(alertData: any) {
+    try {
+      const response = await supabase
+        .from('vehicle_alerts')
+        .insert(alertData)
+        .select()
+        .single();
+
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async updateAlert(alertId: string, data: Partial<any>) {
+    try {
+      const response = await supabase
+        .from('vehicle_alerts')
+        .update(data)
+        .eq('id', alertId)
+        .select()
+        .single();
+
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async deleteAlert(alertId: string) {
+    try {
+      const response = await supabase
+        .from('vehicle_alerts')
+        .delete()
+        .eq('id', alertId);
+
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
+  async getUpcomingVehicles() {
+    try {
+      const response = await supabase
+        .from('vehicles_catalog')
+        .select(`
+          *,
+          vehicle_variants (*)
+        `)
+        .eq('status', 'upcoming')
+        .order('launch_date', { ascending: true });
+
+      return this.handleResponse(response);
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+}
+
+// ===========================================
 // EXPORT ALL SERVICES
 // ===========================================
 
@@ -883,4 +1147,5 @@ export const api = {
   payments: new PaymentApiService(),
   rewards: new RewardsApiService(),
   family: new FamilyApiService(),
+  encyclopedia: new EncyclopediaApiService(),
 };

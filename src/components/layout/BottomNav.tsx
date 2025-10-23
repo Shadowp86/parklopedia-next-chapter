@@ -1,4 +1,4 @@
-import { Home, Car, ParkingCircle, Wrench, User, Trophy, Users } from 'lucide-react';
+import { Home, Car, ParkingCircle, Wrench, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -7,8 +7,6 @@ const navItems = [
   { path: '/vehicles', icon: Car, label: 'Vehicles' },
   { path: '/parking', icon: ParkingCircle, label: 'Parking' },
   { path: '/services', icon: Wrench, label: 'Services' },
-  { path: '/rewards', icon: Trophy, label: 'Rewards' },
-  { path: '/family', icon: Users, label: 'Family' },
   { path: '/profile', icon: User, label: 'Profile' },
 ];
 

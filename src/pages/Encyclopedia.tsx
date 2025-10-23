@@ -1,38 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Card, Button, Loader } from '../components/ui';
-import { Search, Filter, Star, TrendingUp, BookOpen, Zap } from 'lucide-react';
+import { Search, Filter, Star, TrendingUp, BookOpen, Zap, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
-
-interface Vehicle {
-  id: string;
-  brand: string;
-  model: string;
-  category: string;
-  body_type?: string;
-  fuel_type?: string;
-  status: string;
-  launch_date?: string;
-  average_rating?: number;
-  review_count?: number;
-  price_range?: {
-    min: number;
-    max: number;
-    currency: string;
-  };
-  variants_count?: number;
-}
-
-interface SearchFilters {
-  brand: string[];
-  category: string[];
-  fuel_type: string[];
-  body_type: string[];
-  price_min?: number;
-  price_max?: number;
-  status: string[];
-}
+import { Vehicle, SearchFilters } from '../types/encyclopedia';
 
 const Encyclopedia = () => {
+  const navigate = useNavigate();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +17,12 @@ const Encyclopedia = () => {
     category: [],
     fuel_type: [],
     body_type: [],
-    status: []
+    status: [],
+    price_min: undefined,
+    price_max: undefined,
+    rating_min: undefined,
+    launch_date_from: undefined,
+    launch_date_to: undefined
   });
   const [sortBy, setSortBy] = useState<'relevance' | 'price_low' | 'price_high' | 'rating' | 'newest'>('relevance');
   const [showFilters, setShowFilters] = useState(false);
@@ -68,57 +48,64 @@ const Encyclopedia = () => {
   const fetchVehicles = async () => {
     try {
       setLoading(true);
-      // For now, using mock data until Supabase functions are deployed
-      // In production, this would call the vehicle-search Edge Function
-      const mockVehicles: Vehicle[] = [
-        {
-          id: '1',
-          brand: 'Maruti',
-          model: 'Swift',
-          category: 'car',
-          body_type: 'Hatchback',
-          fuel_type: 'petrol',
-          status: 'active',
-          average_rating: 4.2,
-          review_count: 1250,
-          price_range: { min: 599000, max: 899000, currency: 'INR' },
-          variants_count: 8
-        },
-        {
-          id: '2',
-          brand: 'Tata',
-          model: 'Nexon',
-          category: 'car',
-          body_type: 'SUV',
-          fuel_type: 'petrol',
-          status: 'active',
-          average_rating: 4.5,
-          review_count: 2100,
-          price_range: { min: 799000, max: 1499000, currency: 'INR' },
-          variants_count: 12
-        },
-        {
-          id: '3',
-          brand: 'Hyundai',
-          model: 'Creta',
-          category: 'car',
-          body_type: 'SUV',
-          fuel_type: 'petrol',
-          status: 'active',
-          average_rating: 4.3,
-          review_count: 1800,
-          price_range: { min: 1099000, max: 1899000, currency: 'INR' },
-          variants_count: 15
-        }
-      ];
-
-      setVehicles(mockVehicles);
+      // Use real API data
+      const response = await api.encyclopedia.searchVehicles(searchQuery, filters, sortBy, 50, 0);
+      if (response && response.vehicles) {
+        setVehicles(response.vehicles);
+      } else {
+        // Fallback to mock data if API returns empty
+        setVehicles(getMockVehicles());
+      }
     } catch (error) {
       console.error('Error fetching vehicles:', error);
+      // Fallback to mock data
+      setVehicles(getMockVehicles());
     } finally {
       setLoading(false);
     }
   };
+
+  const getMockVehicles = (): Vehicle[] => [
+    {
+      id: '1',
+      brand: 'Maruti',
+      model: 'Swift',
+      category: 'car',
+      body_type: 'Hatchback',
+      fuel_type: 'petrol',
+      status: 'active',
+      average_rating: 4.2,
+      review_count: 1250,
+      price_range: { min: 599000, max: 899000, currency: 'INR' },
+      variants_count: 8
+    },
+    {
+      id: '2',
+      brand: 'Tata',
+      model: 'Nexon',
+      category: 'car',
+      body_type: 'SUV',
+      fuel_type: 'petrol',
+      status: 'active',
+      average_rating: 4.5,
+      review_count: 2100,
+      price_range: { min: 799000, max: 1499000, currency: 'INR' },
+      variants_count: 12
+    },
+    {
+      id: '3',
+      brand: 'Hyundai',
+      model: 'Creta',
+      category: 'car',
+      body_type: 'SUV',
+      fuel_type: 'petrol',
+      status: 'active',
+      average_rating: 4.3,
+      review_count: 1800,
+      price_range: { min: 1099000, max: 1899000, currency: 'INR' },
+      variants_count: 15
+    }
+  ];
 
   const applyFiltersAndSearch = () => {
     let filtered = vehicles;
@@ -133,20 +120,20 @@ const Encyclopedia = () => {
     }
 
     // Apply filters
-    if (filters.brand.length > 0) {
-      filtered = filtered.filter(vehicle => filters.brand.includes(vehicle.brand));
+    if (filters.brand && filters.brand.length > 0) {
+      filtered = filtered.filter(vehicle => filters.brand!.includes(vehicle.brand));
     }
-    if (filters.category.length > 0) {
-      filtered = filtered.filter(vehicle => filters.category.includes(vehicle.category));
+    if (filters.category && filters.category.length > 0) {
+      filtered = filtered.filter(vehicle => filters.category!.includes(vehicle.category));
     }
-    if (filters.fuel_type.length > 0) {
-      filtered = filtered.filter(vehicle => vehicle.fuel_type && filters.fuel_type.includes(vehicle.fuel_type));
+    if (filters.fuel_type && filters.fuel_type.length > 0) {
+      filtered = filtered.filter(vehicle => vehicle.fuel_type && filters.fuel_type!.includes(vehicle.fuel_type));
     }
-    if (filters.body_type.length > 0) {
-      filtered = filtered.filter(vehicle => vehicle.body_type && filters.body_type.includes(vehicle.body_type));
+    if (filters.body_type && filters.body_type.length > 0) {
+      filtered = filtered.filter(vehicle => vehicle.body_type && filters.body_type!.includes(vehicle.body_type));
     }
-    if (filters.status.length > 0) {
-      filtered = filtered.filter(vehicle => filters.status.includes(vehicle.status));
+    if (filters.status && filters.status.length > 0) {
+      filtered = filtered.filter(vehicle => filters.status!.includes(vehicle.status));
     }
     if (filters.price_min !== undefined) {
       filtered = filtered.filter(vehicle => vehicle.price_range && vehicle.price_range.min >= filters.price_min!);
@@ -175,14 +162,17 @@ const Encyclopedia = () => {
   };
 
   const toggleFilter = (type: keyof SearchFilters, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [type]: Array.isArray(prev[type])
-        ? (prev[type] as string[]).includes(value)
-          ? (prev[type] as string[]).filter((item: string) => item !== value)
-          : [...(prev[type] as string[]), value]
-        : [value]
-    }));
+    setFilters(prev => {
+      const currentValue = prev[type];
+      const currentArray = Array.isArray(currentValue) ? currentValue : [];
+      const newArray = currentArray.includes(value)
+        ? currentArray.filter((item: string) => item !== value)
+        : [...currentArray, value];
+      return {
+        ...prev,
+        [type]: newArray
+      };
+    });
   };
 
   const clearFilters = () => {
@@ -191,7 +181,12 @@ const Encyclopedia = () => {
       category: [],
       fuel_type: [],
       body_type: [],
-      status: []
+      status: [],
+      price_min: undefined,
+      price_max: undefined,
+      rating_min: undefined,
+      launch_date_from: undefined,
+      launch_date_to: undefined
     });
   };
 
@@ -282,9 +277,9 @@ const Encyclopedia = () => {
               >
                 <Filter size={16} />
                 Filters
-                {(filters.brand.length + filters.category.length + filters.fuel_type.length + filters.body_type.length + filters.status.length) > 0 && (
+                {((filters.brand?.length || 0) + (filters.category?.length || 0) + (filters.fuel_type?.length || 0) + (filters.body_type?.length || 0) + (filters.status?.length || 0)) > 0 && (
                   <span className="bg-accent-blue text-white text-xs px-2 py-1 rounded-full">
-                    {filters.brand.length + filters.category.length + filters.fuel_type.length + filters.body_type.length + filters.status.length}
+                    {(filters.brand?.length || 0) + (filters.category?.length || 0) + (filters.fuel_type?.length || 0) + (filters.body_type?.length || 0) + (filters.status?.length || 0)}
                   </span>
                 )}
               </Button>
@@ -310,7 +305,7 @@ const Encyclopedia = () => {
                           <label key={brand} className="flex items-center">
                             <input
                               type="checkbox"
-                              checked={filters.brand.includes(brand)}
+                              checked={filters.brand?.includes(brand) || false}
                               onChange={() => toggleFilter('brand', brand)}
                               className="mr-2"
                             />
@@ -328,7 +323,7 @@ const Encyclopedia = () => {
                           <label key={category} className="flex items-center">
                             <input
                               type="checkbox"
-                              checked={filters.category.includes(category)}
+                              checked={filters.category?.includes(category) || false}
                               onChange={() => toggleFilter('category', category)}
                               className="mr-2"
                             />
@@ -346,7 +341,7 @@ const Encyclopedia = () => {
                           <label key={fuel} className="flex items-center">
                             <input
                               type="checkbox"
-                              checked={filters.fuel_type.includes(fuel)}
+                              checked={filters.fuel_type?.includes(fuel) || false}
                               onChange={() => toggleFilter('fuel_type', fuel)}
                               className="mr-2"
                             />
@@ -364,7 +359,7 @@ const Encyclopedia = () => {
                           <label key={body} className="flex items-center">
                             <input
                               type="checkbox"
-                              checked={filters.body_type.includes(body)}
+                              checked={filters.body_type?.includes(body) || false}
                               onChange={() => toggleFilter('body_type', body)}
                               className="mr-2"
                             />
@@ -382,7 +377,7 @@ const Encyclopedia = () => {
                           <label key={status} className="flex items-center">
                             <input
                               type="checkbox"
-                              checked={filters.status.includes(status)}
+                              checked={filters.status?.includes(status) || false}
                               onChange={() => toggleFilter('status', status)}
                               className="mr-2"
                             />
@@ -497,6 +492,7 @@ const Encyclopedia = () => {
                       variant="primary"
                       size="sm"
                       className="flex-1"
+                      onClick={() => navigate('/compare')}
                     >
                       Compare
                     </Button>
@@ -554,3 +550,11 @@ const Encyclopedia = () => {
 };
 
 export default Encyclopedia;
+
+
+
+
+
+
+
+

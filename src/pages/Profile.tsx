@@ -1,5 +1,5 @@
 import { Card } from '../components/ui';
-import { User, Bell, Shield, Moon, Globe, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import { User, Bell, Shield, Moon, Globe, HelpCircle, LogOut, ChevronRight, Users, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
@@ -25,6 +25,7 @@ const Profile = () => {
       await signOut();
     }
   };
+
   const settingsGroups = [
     {
       title: 'Account',
@@ -32,6 +33,13 @@ const Profile = () => {
         { icon: User, label: 'Personal Info', path: '/profile/info' },
         { icon: Bell, label: 'Notifications', path: '/profile/notifications' },
         { icon: Shield, label: 'Privacy & Security', path: '/profile/security' },
+      ],
+    },
+    {
+      title: 'Family & Rewards',
+      items: [
+        { icon: Users, label: 'Family Sharing', path: '/family' },
+        { icon: Trophy, label: 'Rewards & Achievements', path: '/rewards' },
       ],
     },
     {
